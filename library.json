@@ -1,0 +1,20 @@
+{
+    "name": "LVGL_web",
+    "version": "1.0.0",
+    "build": {
+      "srcFilter": [
+        "-<main/**>",
+        "-<components/lv_examples/**>",
+        "-<components/lvgl/**>",
+        "+<components/lvgl_esp32_drivers/**>",
+        "+<components/websocket/**>"
+      ],
+      "includeDir": "./components/websocket/include/",
+      "flags": [
+        "-I components/lvgl_esp32_drivers/"
+      ]
+    },
+    "frameworks": "*",
+    "platforms": "*"
+  }
+  
