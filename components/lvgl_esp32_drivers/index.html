@@ -105,17 +105,7 @@ function onMessage(evt) {
 		imageData = context.getImageData(0, 0, width, height);
 	}
 
-	if (pixel_depth == 32) {
-		for (var y=y1; y<=y2; y++) {
-			for (var x=x1; x<=x2; x++) {
-				var canvasIndex = (y * width + x) * 4;
-				imageData.data[canvasIndex    ] = pixels[pixelIndex++];
-				imageData.data[canvasIndex + 1] = pixels[pixelIndex++];
-				imageData.data[canvasIndex + 2] = pixels[pixelIndex++];
-				imageData.data[canvasIndex + 3] = pixels[pixelIndex++];
-			}
-		}
-	} else if (pixel_depth == 16) {
+	if (pixel_depth == 16) {
 		for (var y=y1; y<=y2; y++) {
 			for (var x=x1; x<=x2; x++) {
 				var canvasIndex = (y * width + x) * 4;
@@ -126,15 +116,88 @@ function onMessage(evt) {
 				imageData.data[canvasIndex + 3] = 255;
 			}
 		}
-	} else {
+	} else if (pixel_depth == 8){
 		for (var y=y1; y<=y2; y++) {
 			for (var x=x1; x<=x2; x++) {
 				var canvasIndex = (y * width + x) * 4;
 				var c8 = pixels[pixelIndex++];
-				imageData.data[canvasIndex    ] = (c8 & 0xE0);
-				imageData.data[canvasIndex + 1] = (c8 & 0x1C) << 3;
-				imageData.data[canvasIndex + 2] = (c8 & 0x03) << 6;
-				imageData.data[canvasIndex + 3] = 255;
+				imageData.data[canvasIndex    ] = ((c8 & 0xE0)>>5) * 36.428;
+        imageData.data[canvasIndex + 1] = ((c8 & 0x1C)>>2) * 36.428;
+        imageData.data[canvasIndex + 2] = (c8 & 0x03) * 85;
+        imageData.data[canvasIndex + 3] = 255;
+			}
+		}
+	} else if (pixel_depth == 4){
+    for (var y=y1; y<=y2; y++) {
+			for (var x=x1; x<=x2; x++) {
+				var canvasIndex = (y * width + x) * 4;
+        var c8 = pixels[Math.floor(pixelIndex/2)];
+        if((pixelIndex & 1) == 0) { 
+          imageData.data[canvasIndex    ] = (c8 & 0x80)?255:0;
+          imageData.data[canvasIndex + 1] = ((c8 & 0x60)>>5)*85;
+          imageData.data[canvasIndex + 2] = (c8 & 0x10)?255:0;
+          imageData.data[canvasIndex + 3] = 255;
+        } else {
+          imageData.data[canvasIndex    ] = (c8 & 0x08)?255:0;
+          imageData.data[canvasIndex + 1] = ((c8 & 0x06)>>1)*85;
+          imageData.data[canvasIndex + 2] = (c8 & 0x01)?255:0;
+          imageData.data[canvasIndex + 3] = 255;
+        }
+        pixelIndex++;
+			}
+		}
+  } else if (pixel_depth == 132){
+    for (var y=y1; y<=y2; y++) {
+			for (var x=x1; x<=x2; x++) {
+				var canvasIndex = (y * width + x) * 4;
+        var c8 = pixels[Math.floor(pixelIndex/2)];
+        if((pixelIndex & 1) == 0) { 
+          var pix = ((c8 & 0xF0)>>4) * 17;
+          imageData.data[canvasIndex    ] = pix;
+          imageData.data[canvasIndex + 1] = pix;
+          imageData.data[canvasIndex + 2] = pix;
+          imageData.data[canvasIndex + 3] = 255;
+        } else {
+          var pix = (c8 & 0x0F) * 17;
+          imageData.data[canvasIndex    ] = pix;
+          imageData.data[canvasIndex + 1] = pix;
+          imageData.data[canvasIndex + 2] = pix;
+          imageData.data[canvasIndex + 3] = 255;
+        }
+        pixelIndex++;
+			}
+		}
+	} else if (pixel_depth == 130){
+    for (var y=y1; y<=y2; y++) {
+			for (var x=x1; x<=x2; x++) {
+				var canvasIndex = (y * width + x) * 4;
+        var c8 = pixels[Math.floor(pixelIndex/4)];
+        if((pixelIndex & 3) == 0) { 
+          var pix = ((c8 & 0xC0)>>6) * 85;
+          imageData.data[canvasIndex    ] = pix;
+          imageData.data[canvasIndex + 1] = pix;
+          imageData.data[canvasIndex + 2] = pix;
+          imageData.data[canvasIndex + 3] = 255;
+        } else if((pixelIndex & 3) == 1) { 
+          var pix = ((c8 & 0x30)>>4) * 85;
+          imageData.data[canvasIndex    ] = pix;
+          imageData.data[canvasIndex + 1] = pix;
+          imageData.data[canvasIndex + 2] = pix;
+          imageData.data[canvasIndex + 3] = 255;
+        } else if((pixelIndex & 3) == 2) { 
+          var pix = ((c8 & 0x0C)>>2) * 85;
+          imageData.data[canvasIndex    ] = pix;
+          imageData.data[canvasIndex + 1] = pix;
+          imageData.data[canvasIndex + 2] = pix;
+          imageData.data[canvasIndex + 3] = 255;
+        } else  { 
+          var pix = (c8 & 0x03) * 85;
+          imageData.data[canvasIndex    ] = pix;
+          imageData.data[canvasIndex + 1] = pix;
+          imageData.data[canvasIndex + 2] = pix;
+          imageData.data[canvasIndex + 3] = 255;
+        }
+        pixelIndex++;
 			}
 		}
 	}
